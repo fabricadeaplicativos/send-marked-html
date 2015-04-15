@@ -27,6 +27,27 @@ var EventEmitter = require('events').EventEmitter;
 var ms = require('ms');
 var onFinished = require('on-finished')
 
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+var minimatch = require('minimatch');
+// internal deps
+var serveMarkedHtml = require('./lib/serve-marked-html');
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
 /**
  * Variables.
  */
@@ -657,41 +678,83 @@ SendStream.prototype.sendIndex = function sendIndex(path){
  * @api private
  */
 
-SendStream.prototype.stream = function(path, options){
+SendStream.prototype.stream = function(fpath, options){
   // TODO: this is all lame, refactor meeee
   var finished = false;
   var self = this;
   var res = this.res;
   var req = this.req;
 
-  // pipe
-  var stream = fs.createReadStream(path, options);
-  this.emit('stream', stream);
-  stream.pipe(res);
 
-  // response finished, done with the fd
-  onFinished(res, function onfinished(){
-    finished = true;
-    destroy(stream);
-  });
 
-  // error handling code-smell
-  stream.on('error', function onerror(err){
-    // request already finished
-    if (finished) return;
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  var type = mime.lookup(fpath);
 
-    // clean up stream
-    finished = true;
-    destroy(stream);
+  // attempt to match html file.
+  if (type === 'text/html') {
 
-    // error
-    self.onStatError(err);
-  });
+    console.log('html file')
 
-  // end
-  stream.on('end', function onend(){
-    self.emit('end');
-  });
+    // is html file
+    serveMarkedHtml({
+
+      xPathAttribute: this.options.xPathAttribute,
+      fnameAttribute: this.options.fnameAttribute,
+
+      root: this._root,
+      fname: path.relative(this._root, fpath)
+    }, res);
+
+
+  } else {
+
+    console.log('other file!')
+    // other type of file
+
+    // pipe
+    var stream = fs.createReadStream(fpath, options);
+    this.emit('stream', stream);
+    stream.pipe(res);
+
+    // response finished, done with the fd
+    onFinished(res, function onfinished(){
+      finished = true;
+      destroy(stream);
+    });
+
+    // error handling code-smell
+    stream.on('error', function onerror(err){
+      // request already finished
+      if (finished) return;
+
+      // clean up stream
+      finished = true;
+      destroy(stream);
+
+      // error
+      self.onStatError(err);
+    });
+
+    // end
+    stream.on('end', function onend(){
+      self.emit('end');
+    });
+  }
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
+  ///////////////////////////////////////////////
 };
 
 /**
