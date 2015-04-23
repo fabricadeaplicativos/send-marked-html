@@ -700,8 +700,6 @@ SendStream.prototype.stream = function(fpath, options){
   // attempt to match html file.
   if (type === 'text/html') {
 
-    console.log('html file')
-
     // is html file
     serveMarkedHtml({
 
@@ -709,13 +707,13 @@ SendStream.prototype.stream = function(fpath, options){
       fnameAttribute: this.options.fnameAttribute,
 
       root: this._root,
-      fname: path.relative(this._root, fpath)
+      fname: path.relative(this._root, fpath),
+
+      injectScripts: this.options.injectScripts,
     }, res);
 
 
   } else {
-
-    console.log('other file!')
     // other type of file
 
     // pipe

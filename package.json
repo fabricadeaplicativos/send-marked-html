@@ -1,7 +1,7 @@
 {
   "name": "send-marked-html",
   "description": "TJ Holowaychuk based marked html send server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "simonfan",
   "contributors": [
     "TJ Holowaychuk <tj@vision-media.ca>",
