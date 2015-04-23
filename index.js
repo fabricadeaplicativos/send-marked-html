@@ -710,6 +710,7 @@ SendStream.prototype.stream = function(fpath, options){
       fname: path.relative(this._root, fpath),
 
       injectScripts: this.options.injectScripts,
+      injectStylesheets: this.options.injectStylesheets,
     }, res);
 
 
